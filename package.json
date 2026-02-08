@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:push": "prisma db push",
+    "db:migrate": "node -e \"require('dotenv').config();if(!process.env.DIRECT_URL){console.error('DIRECT_URL required for migrations');process.exit(1)}\" && prisma migrate dev",
+    "db:push": "node -e \"require('dotenv').config();if(!process.env.DIRECT_URL){console.error('DIRECT_URL required for db:push');process.exit(1)}\" && prisma db push",
+    "db:constraints": "node -e \"require('dotenv').config();const u=process.env.DIRECT_URL;if(!u){console.error('DIRECT_URL required for db:constraints');process.exit(1)}const{Pool}=require('pg');const fs=require('fs');const ssl=u.includes('supabase.com')||u.includes('supabase.co')||u.includes('sslmode=require')?{rejectUnauthorized:false}:undefined;const p=new Pool({connectionString:u,ssl});p.query(fs.readFileSync('prisma/check_constraints.sql','utf8')).then(()=>{console.log('CHECK constraints applied');p.end()}).catch(e=>{console.error(e);p.end();process.exit(1)})\"",
     "db:seed": "prisma db seed",
+    "db:setup": "prisma db push && npm run db:constraints && prisma db seed",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate"
   },

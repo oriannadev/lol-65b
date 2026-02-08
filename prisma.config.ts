@@ -6,8 +6,21 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
-  // Use DIRECT_URL for migrations (non-pooled), fall back to DATABASE_URL
+  // Prefer DIRECT_URL (non-pooled). Falls back to DATABASE_URL for non-migration
+  // commands (generate, studio). Migration scripts (db:push, db:migrate) enforce
+  // DIRECT_URL via their own guards in package.json.
   datasource: {
-    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
+    url: (() => {
+      const direct = process.env["DIRECT_URL"];
+      if (direct) return direct;
+      const fallback = process.env["DATABASE_URL"];
+      if (fallback) {
+        console.warn(
+          "⚠ DIRECT_URL not set — falling back to DATABASE_URL. Migrations may fail over PgBouncer."
+        );
+        return fallback;
+      }
+      return undefined; // Let Prisma handle missing URL (generate doesn't need it)
+    })(),
   },
 });

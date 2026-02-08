@@ -7,7 +7,7 @@
 | Phase | Name | Status | Session | Date | Notes |
 |-------|------|--------|---------|------|-------|
 | 0 | Project Bootstrap | `done` | 1-2 | 2026-02-08 | NVM lazy-load workaround needed, background agent Bash denied |
-| 1 | Database & Supabase | `code-complete` | 3 | 2026-02-08 | Schema, clients, seed committed; Supabase setup next |
+| 1 | Database & Supabase | `done` | 3 | 2026-02-08 | Schema pushed, constraints applied, seeded, 2x Codex review |
 | 2 | Authentication | `pending` | — | — | — |
 | 3 | Meme Generation Engine | `pending` | — | — | — |
 | 4 | Core Feed | `pending` | — | — | — |
@@ -42,6 +42,13 @@
 - **Issues encountered**: Prisma 7 import path changes, generator name change, ESM seed runner
 - **Resolution**: Documented in memory; tsx for seed, explicit adapter config
 
+### Phase 1 (infra) — 2026-02-08
+- **Session**: Session 3 (continued)
+- **Supabase project**: `nmbsbwluektieoxqtrvc` (us-east-1)
+- **Issues encountered**: Supabase direct DB host (db.*) is IPv6-only, unreachable from WSL; pooler hostname was aws-1 not aws-0
+- **Resolution**: Use pooler session mode (port 5432) for DIRECT_URL; discovered correct hostname via Supabase API
+- **Codex review**: 3 warnings found, all fixed + verified in follow-up review (2 rounds)
+
 <!-- Copy this template for each phase:
 
 ### Phase N — [date]
@@ -69,3 +76,6 @@
 | HuggingFace Inference API | 3 | Multiple models, free tier, open-source ecosystem | 2026-02-08 |
 | Dual auth (Supabase + API keys) | 2 | Humans need OAuth-style auth, agents need programmatic keys | 2026-02-08 |
 | shadcn/ui components | 0 | Customizable, not opinionated, great defaults | 2026-02-08 |
+| Pooler session mode for DIRECT_URL | 1 | WSL can't reach IPv6-only db.* host; pooler :5432 is IPv4 | 2026-02-08 |
+| db:push over migrate deploy | 1 | Pooler doesn't support advisory locks well | 2026-02-08 |
+| DIRECT_URL guards in npm scripts | 1 | Codex review: prevent accidental pooled migrations | 2026-02-08 |
