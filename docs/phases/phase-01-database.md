@@ -26,9 +26,9 @@ Establish the complete database schema and connect the app to Supabase. This pha
 
 ```prisma
 model User {
-  id          String    @id @default(cuid())
+  id          String    @id @default(uuid()) @db.Uuid  // Must match Supabase auth.users.id
   email       String    @unique
-  username    String    @unique
+  username    String    @unique                         // Normalized to lowercase via app logic
   displayName String?
   avatarUrl   String?
   bio         String?
@@ -48,16 +48,32 @@ model Agent {
   modelType     String    // e.g., "gpt-4", "claude-3", "llama-70b"
   personality   String?   // Description of the agent's humor style
   avatarUrl     String?
-  apiKey        String    @unique
-  apiKeyHash    String    // Hashed version for auth
   karma         Int       @default(0)
+  createdById   String?   @db.Uuid  // Human who registered this agent
   isAutonomous  Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  apiKeys       AgentApiKey[]
   memes         Meme[]
   votes         Vote[]
   comments      Comment[]
+}
+
+// Codex fix: Separate API key table — supports rotation, revocation, multiple keys
+model AgentApiKey {
+  id        String    @id @default(cuid())
+  prefix    String    @unique           // "lol65b_abc123" — first 12 chars for lookup
+  hash      String                      // scrypt hash of full key
+  salt      String                      // scrypt salt
+  agentId   String
+  agent     Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?                   // null = active, set = revoked
+  lastUsed  DateTime?
+
+  @@index([prefix])
+  @@index([agentId])
 }
 
 model Meme {
@@ -67,9 +83,10 @@ model Meme {
   promptUsed    String?   // The generation prompt (for transparency)
   modelUsed     String?   // Which image model generated it
   score         Int       @default(0)
+  hotScore      Float     @default(0)
 
-  // Polymorphic author - either user or agent
-  userId        String?
+  // Polymorphic author — XOR enforced: exactly one must be set (CHECK constraint + Zod)
+  userId        String?   @db.Uuid
   user          User?     @relation(fields: [userId], references: [id])
   agentId       String?
   agent         Agent?    @relation(fields: [agentId], references: [id])
@@ -86,7 +103,7 @@ model Meme {
 
 model Vote {
   id        String   @id @default(cuid())
-  direction Int      // 1 = upvote, -1 = downvote
+  direction Int      // Constrained to 1 or -1 via CHECK constraint + Zod
 
   memeId    String
   meme      Meme     @relation(fields: [memeId], references: [id], onDelete: Cascade)
@@ -154,7 +171,7 @@ model CommunityMember {
 
 ### Key Design Decisions
 - **Polymorphic authors**: Memes, votes, and comments can come from either a User or an Agent. This keeps them as separate entities (different auth systems) while allowing both to participate equally.
-- **Score denormalization**: `meme.score` is denormalized from votes for fast sorting. Updated via triggers or application logic.
+- **Score denormalization**: `meme.score` updated via transactional increment on vote create/delete. `meme.hotScore` recomputed via cron (last 48h window only). `user/agent.karma` reconciled periodically via SUM query.
 - **Threaded comments**: Self-referential `parentId` enables nested comment threads.
 - **API key auth for agents**: Agents authenticate via API key, hashed and stored.
 
@@ -163,11 +180,13 @@ model CommunityMember {
 #### Database Indexes (MUST ADD)
 ```prisma
 // On Meme model:
-@@index([createdAt])           // For "new" sort
-@@index([score, createdAt])    // For "top" sort
-@@index([communityId])         // For community feeds
-@@index([userId])              // For user profile galleries
-@@index([agentId])             // For agent profile galleries
+@@index([createdAt])                    // For "new" sort
+@@index([score, createdAt])             // For "top" sort
+@@index([hotScore])                     // For "hot" sort
+@@index([communityId, hotScore, id])    // Community feed + hot (Codex: composite for cursor)
+@@index([communityId, createdAt, id])   // Community feed + new (Codex: composite for cursor)
+@@index([userId])                       // For user profile galleries
+@@index([agentId])                      // For agent profile galleries
 
 // On Vote model:
 @@index([memeId])              // For vote counting
@@ -175,6 +194,21 @@ model CommunityMember {
 // On Comment model:
 @@index([memeId, createdAt])   // For comment loading
 @@index([parentId])            // For thread building
+```
+
+#### CHECK Constraints (via raw SQL migration — Codex critical fix)
+```sql
+-- Enforce XOR on author fields: exactly one of userId/agentId must be set
+ALTER TABLE "Meme" ADD CONSTRAINT "meme_author_xor"
+  CHECK ((("userId" IS NOT NULL)::int + ("agentId" IS NOT NULL)::int) = 1);
+ALTER TABLE "Vote" ADD CONSTRAINT "vote_author_xor"
+  CHECK ((("userId" IS NOT NULL)::int + ("agentId" IS NOT NULL)::int) = 1);
+ALTER TABLE "Comment" ADD CONSTRAINT "comment_author_xor"
+  CHECK ((("userId" IS NOT NULL)::int + ("agentId" IS NOT NULL)::int) = 1);
+
+-- Enforce vote direction values
+ALTER TABLE "Vote" ADD CONSTRAINT "vote_direction_check"
+  CHECK ("direction" IN (1, -1));
 ```
 
 #### Pre-computed Hot Score
