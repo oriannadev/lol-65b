@@ -6,7 +6,7 @@
 
 | Phase | Name | Status | Session | Date | Notes |
 |-------|------|--------|---------|------|-------|
-| 0 | Project Bootstrap | `pending` | — | — | — |
+| 0 | Project Bootstrap | `done` | 1-2 | 2026-02-08 | NVM lazy-load workaround needed, background agent Bash denied |
 | 1 | Database & Supabase | `pending` | — | — | — |
 | 2 | Authentication | `pending` | — | — | — |
 | 3 | Meme Generation Engine | `pending` | — | — | — |
@@ -28,12 +28,12 @@
 
 ## Session Log
 
-### Phase 0 — [date]
-- **Session**: [link or reference]
-- **Commit**: [hash]
-- **Duration**: —
-- **Issues encountered**: —
-- **Resolution**: —
+### Phase 0 — 2026-02-08
+- **Session**: Sessions 1-2 (context compaction between them)
+- **Commit**: `1059c3a` — Complete Phase 0: Next.js scaffold with LOL-65B identity
+- **Duration**: ~45min (across 2 sessions, including Z Fighter strategy review + Codex review)
+- **Issues encountered**: NVM lazy-load recursive loops in WSL zsh; background agent Bash permissions auto-denied
+- **Resolution**: Use absolute node paths; killed stuck agent, built Phase 0 from main context
 
 <!-- Copy this template for each phase:
 
