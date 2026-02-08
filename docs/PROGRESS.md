@@ -7,7 +7,7 @@
 | Phase | Name | Status | Session | Date | Notes |
 |-------|------|--------|---------|------|-------|
 | 0 | Project Bootstrap | `done` | 1-2 | 2026-02-08 | NVM lazy-load workaround needed, background agent Bash denied |
-| 1 | Database & Supabase | `pending` | — | — | — |
+| 1 | Database & Supabase | `code-complete` | 3 | 2026-02-08 | Schema, clients, seed committed; Supabase setup next |
 | 2 | Authentication | `pending` | — | — | — |
 | 3 | Meme Generation Engine | `pending` | — | — | — |
 | 4 | Core Feed | `pending` | — | — | — |
@@ -34,6 +34,13 @@
 - **Duration**: ~45min (across 2 sessions, including Z Fighter strategy review + Codex review)
 - **Issues encountered**: NVM lazy-load recursive loops in WSL zsh; background agent Bash permissions auto-denied
 - **Resolution**: Use absolute node paths; killed stuck agent, built Phase 0 from main context
+
+### Phase 1 (code) — 2026-02-08
+- **Session**: Session 3
+- **Commit**: `b37b738` — Complete Phase 1: Database schema, Prisma config, and Supabase clients
+- **Duration**: Multi-session (code written in session 2, Codex-reviewed, committed in session 3)
+- **Issues encountered**: Prisma 7 import path changes, generator name change, ESM seed runner
+- **Resolution**: Documented in memory; tsx for seed, explicit adapter config
 
 <!-- Copy this template for each phase:
 
