@@ -11,6 +11,7 @@
 | 2 | Authentication | `done` | 4 | 2026-02-08 | Dual auth: Supabase SSR + agent API keys, 20 new files, Z Fighter team |
 | 3 | Meme Generation Engine | `done` | 5 | 2026-02-08 | Provider abstraction, prompt safety, caption overlay, Z Fighter + Codex review |
 | 4 | Core Feed | `done` | 6 | 2026-02-09 | Feed API, cursor pagination, sort/period, infinite scroll, Codex-reviewed |
+| — | BYOK (cross-cutting) | `done` | 7 | 2026-02-09 | Encrypted provider key storage, BYOK enforcement, Settings UI, agent key API, Codex + Beerus reviewed |
 | 5 | Meme Interactions (MVP!) | `pending` | — | — | — |
 | 6 | Comments System | `pending` | — | — | — |
 | 7 | Agent & User Profiles | `pending` | — | — | — |
@@ -80,6 +81,18 @@
 - **Codex findings fixed**: (1) graceful deleted-cursor recovery via isPrismaNotFound, (2) AbortController for stale fetch race conditions, (3) fetchingRef guard against IntersectionObserver double-fire, (4) timeAgo NaN/future date guard
 - **Security audit**: .env gitignored, .env.example has only empty placeholders, no secrets tracked in git
 
+### BYOK (Bring Your Own Key) — 2026-02-09
+- **Session**: Session 7
+- **Commit**: `430ea8b` — Add BYOK (Bring Your Own Key) for image generation providers
+- **Duration**: ~30min
+- **Approach**: Z Fighter team deployed (Vegeta, Piccolo) but lead completed all 10 steps before fighters finished loading. Codex cross-model review (8 findings, 6 fixed). Beerus security audit contributed to plan (7 findings).
+- **Files**: 5 new, 13 modified (+888 lines, -45 lines)
+- **Key additions**: AES-256-GCM encryption with AAD binding + key rotation support, ProviderCredential model (polymorphic XOR), encrypted CRUD for provider keys, provider factory refactor (BYOK param), meme pipeline BYOK enforcement (403 if no key), rate limiting (10/hr per caller), error sanitization (strip hf_*/r8_* patterns), Settings UI for API key management, agent provider-keys API (GET/PUT/DELETE), create page no-key guard
+- **Codex findings fixed**: (1) removeProviderKey ignoring delete result, (2) listProviderKeys empty-owner data leak, (3) agent registration non-transactional key writes, (4) AAD missing owner type, (5) client form missing try/catch, (6) setProviderKey missing XOR guard
+- **Codex deferred**: provider fallback preference (always HF-first), attempt-level rate limiting
+- **Issues encountered**: Z Fighter agents couldn't resolve NVM/node paths (known WSL issue); fighters never wrote code before lead finished
+- **Resolution**: Lead completed everything directly; fighters shut down post-mission
+
 <!-- Copy this template for each phase:
 
 ### Phase N — [date]
@@ -116,3 +129,7 @@
 | @supabase/ssr over raw supabase-js | 2 | Cookie-based auth for Next.js App Router SSR, getUser() over getSession() | 2026-02-08 |
 | scrypt (N=2^15) for API keys | 2 | Memory-hard hash, prefix-based O(1) lookup, timingSafeEqual | 2026-02-08 |
 | (auth) route group | 2 | Shared layout for login/signup, server-side redirect if already authed | 2026-02-08 |
+| BYOK mandatory for generation | BYOK | Platform owner $0 cost; env keys admin/seed only | 2026-02-09 |
+| AES-256-GCM + AAD binding | BYOK | Provider+ownerType+ownerId as AAD prevents ciphertext swapping | 2026-02-09 |
+| keyVersion for encryption rotation | BYOK | Multi-version decrypt + lazy re-encrypt on read | 2026-02-09 |
+| DB-based rate limiting | BYOK | 10 memes/hr per caller; no Redis needed at MVP scale | 2026-02-09 |
