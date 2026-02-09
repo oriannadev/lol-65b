@@ -10,7 +10,7 @@
 | 1 | Database & Supabase | `done` | 3 | 2026-02-08 | Schema pushed, constraints applied, seeded, 2x Codex review |
 | 2 | Authentication | `done` | 4 | 2026-02-08 | Dual auth: Supabase SSR + agent API keys, 20 new files, Z Fighter team |
 | 3 | Meme Generation Engine | `done` | 5 | 2026-02-08 | Provider abstraction, prompt safety, caption overlay, Z Fighter + Codex review |
-| 4 | Core Feed | `pending` | — | — | — |
+| 4 | Core Feed | `done` | 6 | 2026-02-09 | Feed API, cursor pagination, sort/period, infinite scroll, Codex-reviewed |
 | 5 | Meme Interactions (MVP!) | `pending` | — | — | — |
 | 6 | Comments System | `pending` | — | — | — |
 | 7 | Agent & User Profiles | `pending` | — | — | — |
@@ -70,6 +70,16 @@
 - **Issues encountered**: HfInference textToImage TypeScript overload (string vs Blob), Zod v4 import path mismatch, race condition in create-then-update DB pattern, Sharp dual-instance memory leak, no API timeout, XML injection in caption overlay, system: regex false positive on "solar system", interval leak on unmount
 - **Resolution**: outputType:"blob" cast, matched existing zod import, upload-first pattern with randomUUID, sharp .clone(), AbortController 45s timeout, non-ASCII stripping + entity escaping, tightened regex to line-start only, useRef + useEffect cleanup
 
+### Phase 4 — 2026-02-09
+- **Session**: Session 6
+- **Commit**: `e7e1d6f` — Add Phase 4: Core Feed with cursor pagination, sorting, and infinite scroll
+- **Duration**: ~25min
+- **Approach**: Direct build + Codex cross-model review (5 findings, all fixed)
+- **Files**: 7 new, 2 modified (page.tsx, utils.ts) + next-env.d.ts auto-update
+- **Key additions**: Feed API (GET /api/memes) with cursor pagination and Zod-validated sort/period params, MemeCard/MemeGrid/MemeSkeleton components, FeedControls (sort tabs + period filter), Feed client component with IntersectionObserver infinite scroll, timeAgo utility
+- **Codex findings fixed**: (1) graceful deleted-cursor recovery via isPrismaNotFound, (2) AbortController for stale fetch race conditions, (3) fetchingRef guard against IntersectionObserver double-fire, (4) timeAgo NaN/future date guard
+- **Security audit**: .env gitignored, .env.example has only empty placeholders, no secrets tracked in git
+
 <!-- Copy this template for each phase:
 
 ### Phase N — [date]
@@ -97,6 +107,9 @@
 | HuggingFace Inference API | 3 | Multiple models, free tier, open-source ecosystem | 2026-02-08 |
 | Dual auth (Supabase + API keys) | 2 | Humans need OAuth-style auth, agents need programmatic keys | 2026-02-08 |
 | shadcn/ui components | 0 | Customizable, not opinionated, great defaults | 2026-02-08 |
+| Cursor pagination (Prisma cursor+skip) | 4 | Stable for new sort; graceful fallback for hot/top score drift | 2026-02-09 |
+| Client-side feed with URL-driven state | 4 | searchParams for sort/period = shareable URLs; SSR opt later | 2026-02-09 |
+| IntersectionObserver infinite scroll | 4 | Native API, no dep needed; fetchingRef prevents double-fire | 2026-02-09 |
 | Pooler session mode for DIRECT_URL | 1 | WSL can't reach IPv6-only db.* host; pooler :5432 is IPv4 | 2026-02-08 |
 | db:push over migrate deploy | 1 | Pooler doesn't support advisory locks well | 2026-02-08 |
 | DIRECT_URL guards in npm scripts | 1 | Codex review: prevent accidental pooled migrations | 2026-02-08 |
