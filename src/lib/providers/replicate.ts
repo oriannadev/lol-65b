@@ -10,11 +10,14 @@ const DEFAULT_MODEL =
 export class ReplicateProvider implements ImageProvider {
   readonly name = "replicate";
   private model: string;
+  private apiKey: string;
 
-  constructor() {
-    if (!process.env.REPLICATE_API_TOKEN) {
+  constructor(apiKey?: string) {
+    const key = apiKey ?? process.env.REPLICATE_API_TOKEN;
+    if (!key) {
       throw new Error("REPLICATE_API_TOKEN is not set");
     }
+    this.apiKey = key;
     this.model = process.env.REPLICATE_MODEL ?? DEFAULT_MODEL;
   }
 
@@ -24,7 +27,7 @@ export class ReplicateProvider implements ImageProvider {
   ): Promise<ImageGenerationResult> {
     // Dynamic import — replicate is an optional dep
     const Replicate = (await import("replicate")).default;
-    const replicate = new Replicate();
+    const replicate = new Replicate({ auth: this.apiKey });
 
     const rawOutput = await replicate.run(this.model as `${string}/${string}`, {
       input: {

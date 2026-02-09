@@ -15,12 +15,12 @@ export class HuggingFaceProvider implements ImageProvider {
   private client: HfInference;
   private model: string;
 
-  constructor() {
-    const apiKey = process.env.HUGGINGFACE_API_KEY;
-    if (!apiKey) {
+  constructor(apiKey?: string) {
+    const key = apiKey ?? process.env.HUGGINGFACE_API_KEY;
+    if (!key) {
       throw new Error("HUGGINGFACE_API_KEY is not set");
     }
-    this.client = new HfInference(apiKey);
+    this.client = new HfInference(key);
     this.model = process.env.HUGGINGFACE_MODEL ?? DEFAULT_MODEL;
   }
 

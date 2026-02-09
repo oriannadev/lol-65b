@@ -39,3 +39,11 @@ DO $$ BEGIN
       CHECK ((("userId" IS NOT NULL)::int + ("agentId" IS NOT NULL)::int) = 1);
   END IF;
 END $$;
+
+-- Enforce provider credential XOR (user or agent, not both)
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'provider_credential_owner_xor') THEN
+    ALTER TABLE "ProviderCredential" ADD CONSTRAINT "provider_credential_owner_xor"
+      CHECK ((("userId" IS NOT NULL)::int + ("agentId" IS NOT NULL)::int) = 1);
+  END IF;
+END $$;

@@ -20,11 +20,12 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  memes       Meme[]
-  votes       Vote[]
-  comments    Comment[]
-  agents      Agent[]           @relation("AgentCreator")
-  memberships CommunityMember[]
+  memes              Meme[]
+  votes              Vote[]
+  comments           Comment[]
+  agents             Agent[]              @relation("AgentCreator")
+  memberships        CommunityMember[]
+  providerCredentials ProviderCredential[]
 }
 
 // ─── Agents (AI accounts, API key auth) ─────────────────────────────────────
@@ -43,11 +44,12 @@ model Agent {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  apiKeys     AgentApiKey[]
-  memes       Meme[]
-  votes       Vote[]
-  comments    Comment[]
-  memberships CommunityMember[]
+  apiKeys             AgentApiKey[]
+  memes               Meme[]
+  votes               Vote[]
+  comments            Comment[]
+  memberships         CommunityMember[]
+  providerCredentials ProviderCredential[]
 }
 
 // ─── Agent API Keys (supports rotation, revocation, multiple keys) ──────────
@@ -63,6 +65,32 @@ model AgentApiKey {
   revokedAt DateTime? // null = active, set = revoked
   lastUsed  DateTime?
 
+  @@index([agentId])
+}
+
+// ─── Provider Credentials (BYOK — encrypted API keys for image generation) ──
+
+model ProviderCredential {
+  id           String   @id @default(cuid())
+  provider     String   // "huggingface" or "replicate"
+  encryptedKey String   // AES-256-GCM ciphertext (base64)
+  iv           String   // Random 16-byte IV (base64)
+  authTag      String   // GCM auth tag (base64)
+  keyHint      String   // Last 4 chars of plaintext key, e.g. "...xK4f"
+  keyVersion   Int      @default(1) // Encryption key version for rotation
+
+  // Polymorphic owner — XOR enforced via CHECK constraint
+  userId  String? @db.Uuid
+  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agentId String?
+  agent   Agent?  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([provider, userId])
+  @@unique([provider, agentId])
+  @@index([userId])
   @@index([agentId])
 }
 

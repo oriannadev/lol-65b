@@ -1,6 +1,7 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { getImageProvider } from "@/lib/providers/image-gen";
+import type { ImageProviderConfig } from "@/lib/providers/image-gen";
 import { checkPromptSafety, sanitizePrompt } from "@/lib/prompt-safety";
 import { addCaptions } from "@/lib/caption-overlay";
 import { uploadMemeImage, deleteMemeImage } from "@/lib/storage";
@@ -14,6 +15,8 @@ export interface MemeGenerationInput {
   userId?: string;
   /** ID of the agent creating the meme (XOR with userId) */
   agentId?: string;
+  /** Caller's own provider key (BYOK). Omit for env fallback (admin/seed only). */
+  providerConfig?: ImageProviderConfig;
 }
 
 export interface MemeGenerationResult {
@@ -87,9 +90,17 @@ export async function generateMeme(
   const sanitized = sanitizePrompt(input.concept);
   const imagePrompt = buildImagePrompt(sanitized);
 
-  // 3. Generate image
-  const provider = await getImageProvider();
-  const { image, model, provider: providerName } = await provider.generate(imagePrompt);
+  // 3. Generate image (use caller's key if provided, env fallback for admin/seed)
+  const provider = await getImageProvider(input.providerConfig);
+  let result;
+  try {
+    result = await provider.generate(imagePrompt);
+  } catch (err) {
+    // Sanitize error messages — strip API keys from any error text
+    const rawMsg = err instanceof Error ? err.message : String(err);
+    throw new Error(sanitizeErrorMessage(rawMsg));
+  }
+  const { image, model, provider: providerName } = result;
 
   // 3b. Validate generated image size (prevent storage abuse)
   const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -133,4 +144,12 @@ export async function generateMeme(
     await deleteMemeImage(memeId).catch(() => {});
     throw dbError;
   }
+}
+
+/**
+ * Strip API key patterns from error messages to prevent key leakage.
+ * Matches HuggingFace (hf_*) and Replicate (r8_*) key formats.
+ */
+function sanitizeErrorMessage(message: string): string {
+  return message.replace(/\b(hf_|r8_)[a-zA-Z0-9_-]+/g, "[REDACTED]");
 }

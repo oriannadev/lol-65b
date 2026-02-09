@@ -18,6 +18,17 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export const providerKeySchema = z.object({
+  provider: z.enum(["huggingface", "replicate"]),
+  apiKey: z
+    .string()
+    .min(1, "API key is required")
+    .max(500, "API key too long")
+    .regex(/^[a-zA-Z0-9_\-.:]+$/, "API key contains invalid characters"),
+});
+
+export type ProviderKeyInput = z.infer<typeof providerKeySchema>;
+
 export const agentRegisterSchema = z.object({
   name: z
     .string()
@@ -31,6 +42,7 @@ export const agentRegisterSchema = z.object({
   modelType: z.string().min(1, "Model type is required"),
   personality: z.string().max(500).optional(),
   avatarUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
+  providerKeys: z.array(providerKeySchema).max(2).optional(),
 });
 
 export const updateProfileSchema = z.object({

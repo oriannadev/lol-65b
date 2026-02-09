@@ -22,7 +22,11 @@ interface MemeResult {
   modelUsed: string;
 }
 
-export function CreateMemeForm() {
+interface CreateMemeFormProps {
+  disabled?: boolean;
+}
+
+export function CreateMemeForm({ disabled = false }: CreateMemeFormProps) {
   const [concept, setConcept] = useState("");
   const [topCaption, setTopCaption] = useState("");
   const [bottomCaption, setBottomCaption] = useState("");
@@ -105,7 +109,7 @@ export function CreateMemeForm() {
             rows={3}
             maxLength={500}
             required
-            disabled={loading}
+            disabled={disabled || loading}
             aria-describedby="concept-counter"
             className="w-full rounded-lg border border-border bg-base px-4 py-3 font-mono text-sm text-zinc-100 placeholder-zinc-600 transition-colors focus:border-mint/50 focus:outline-none disabled:opacity-50"
           />
@@ -135,7 +139,7 @@ export function CreateMemeForm() {
               onChange={(e) => setTopCaption(e.target.value)}
               placeholder="Optional top text"
               maxLength={100}
-              disabled={loading}
+              disabled={disabled || loading}
               className="w-full rounded-lg border border-border bg-base px-4 py-2.5 font-mono text-sm text-zinc-100 placeholder-zinc-600 transition-colors focus:border-lavender/50 focus:outline-none disabled:opacity-50"
             />
           </div>
@@ -153,7 +157,7 @@ export function CreateMemeForm() {
               onChange={(e) => setBottomCaption(e.target.value)}
               placeholder="Optional bottom text"
               maxLength={100}
-              disabled={loading}
+              disabled={disabled || loading}
               className="w-full rounded-lg border border-border bg-base px-4 py-2.5 font-mono text-sm text-zinc-100 placeholder-zinc-600 transition-colors focus:border-lavender/50 focus:outline-none disabled:opacity-50"
             />
           </div>
@@ -162,7 +166,7 @@ export function CreateMemeForm() {
         {/* Submit */}
         <button
           type="submit"
-          disabled={loading || concept.trim().length < 3}
+          disabled={disabled || loading || concept.trim().length < 3}
           className="w-full rounded-lg bg-mint px-6 py-3 font-mono text-sm font-semibold text-black transition-all hover:bg-mint-dim hover:shadow-[0_0_20px_rgba(74,222,128,0.3)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-mint disabled:hover:shadow-none"
         >
           {loading ? "Generating..." : "Generate Meme"}

@@ -7,6 +7,7 @@ import {
   hashApiKey,
 } from "@/lib/middleware/agent-auth";
 import { getCurrentUser } from "@/lib/auth";
+import { setProviderKey } from "@/lib/provider-credentials";
 
 export async function POST(request: Request) {
   // Require authenticated human user to register an agent
@@ -72,6 +73,24 @@ export async function POST(request: Request) {
     throw e;
   }
 
+  // Store optional provider keys (BYOK) if provided
+  // Non-fatal: agent is still usable, keys can be added later via API
+  let providerKeyWarning: string | undefined;
+  if (parsed.data.providerKeys?.length) {
+    try {
+      for (const pk of parsed.data.providerKeys) {
+        await setProviderKey(
+          { agentId: agent.id },
+          pk.provider,
+          pk.apiKey
+        );
+      }
+    } catch {
+      providerKeyWarning =
+        "Agent created but provider keys could not be saved. Add them later via PUT /api/agents/provider-keys.";
+    }
+  }
+
   return NextResponse.json(
     {
       agent: {
@@ -83,6 +102,7 @@ export async function POST(request: Request) {
       apiKey: rawKey,
       warning:
         "Store this API key securely — it will not be shown again.",
+      ...(providerKeyWarning && { providerKeyWarning }),
     },
     { status: 201 }
   );
