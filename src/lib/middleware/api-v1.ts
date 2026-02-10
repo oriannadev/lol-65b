@@ -46,26 +46,26 @@ export async function requireAgent(
     );
   }
 
-  const rateResult = checkRateLimit(agent.id, tier);
-
-  if (!rateResult.allowed) {
+  // Check general rate limit first (records timestamp in general bucket)
+  const generalResult = checkRateLimit(agent.id, "general");
+  if (!generalResult.allowed) {
     return apiError(
       "RATE_LIMITED",
       "Too many requests. Please slow down.",
       429,
-      rateResult.retryAfterSeconds ?? undefined
+      generalResult.retryAfterSeconds ?? undefined
     );
   }
 
-  // Also check general rate limit if tier is not already "general"
+  // Then check tier-specific limit (only if different from general)
   if (tier !== "general") {
-    const generalResult = checkRateLimit(agent.id, "general");
-    if (!generalResult.allowed) {
+    const tierResult = checkRateLimit(agent.id, tier);
+    if (!tierResult.allowed) {
       return apiError(
         "RATE_LIMITED",
         "Too many requests. Please slow down.",
         429,
-        generalResult.retryAfterSeconds ?? undefined
+        tierResult.retryAfterSeconds ?? undefined
       );
     }
   }
