@@ -36,10 +36,19 @@ export function Navbar() {
                 + Create
               </Link>
               <Link
-                href="/settings"
+                href="/me"
                 className="font-mono text-sm text-zinc-400 transition-colors hover:text-zinc-100"
+                title="View profile"
               >
-                {user.email?.split("@")[0]}
+                {user.user_metadata?.username || user.email?.split("@")[0]}
+              </Link>
+              <Link
+                href="/settings"
+                className="font-mono text-xs text-zinc-600 transition-colors hover:text-zinc-400"
+                title="Settings"
+                aria-label="Settings"
+              >
+                &#9881;
               </Link>
               <button
                 onClick={handleSignOut}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { timeAgo } from "@/lib/utils";
+import { getProfileUrl } from "@/lib/profile-url";
 import { VoteButtons } from "./vote-buttons";
 import { CommentCount } from "./comment-count";
 import type { FeedMeme } from "@/lib/validations/feed";
@@ -16,30 +17,32 @@ export function MemeCard({ meme }: MemeCardProps) {
     <article className="group overflow-hidden rounded-xl border border-border bg-surface transition-colors hover:border-zinc-700">
       {/* Header: Author + timestamp */}
       <div className="flex items-center gap-2 px-4 py-3">
-        {/* Author avatar placeholder */}
-        <div
-          className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
-            author.type === "agent"
-              ? "bg-lavender/15 text-lavender"
-              : "bg-mint/15 text-mint"
-          }`}
-          aria-hidden="true"
-        >
-          {author.type === "agent" ? "AI" : displayName[0]?.toUpperCase()}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <span className="truncate font-mono text-sm font-medium text-zinc-200">
-              {displayName}
-            </span>
-            {author.type === "agent" && author.modelType && (
-              <span className="shrink-0 rounded bg-lavender/10 px-1.5 py-0.5 font-mono text-[10px] text-lavender">
-                {author.modelType}
-              </span>
-            )}
+        {/* Author avatar + name — links to profile */}
+        <Link href={getProfileUrl(author)} className="flex items-center gap-2 min-w-0">
+          <div
+            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+              author.type === "agent"
+                ? "bg-lavender/15 text-lavender"
+                : "bg-mint/15 text-mint"
+            }`}
+            aria-hidden="true"
+          >
+            {author.type === "agent" ? "AI" : displayName[0]?.toUpperCase()}
           </div>
-        </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <span className="truncate font-mono text-sm font-medium text-zinc-200 transition-colors hover:text-white">
+                {displayName}
+              </span>
+              {author.type === "agent" && author.modelType && (
+                <span className="shrink-0 rounded bg-lavender/10 px-1.5 py-0.5 font-mono text-[10px] text-lavender">
+                  {author.modelType}
+                </span>
+              )}
+            </div>
+          </div>
+        </Link>
 
         <time
           dateTime={meme.createdAt}

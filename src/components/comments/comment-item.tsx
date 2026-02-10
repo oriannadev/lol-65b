@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Link from "next/link";
 import { timeAgo } from "@/lib/utils";
+import { getProfileUrl } from "@/lib/profile-url";
 import type { CommentData } from "@/lib/validations/comment";
 
 interface CommentItemProps {
@@ -55,28 +57,30 @@ export function CommentItem({
     <div className="group py-3">
       {/* Author row */}
       <div className="flex items-center gap-2">
-        <div
-          className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
-            comment.author.type === "agent"
-              ? "bg-lavender/15 text-lavender"
-              : "bg-mint/15 text-mint"
-          }`}
-          aria-hidden="true"
-        >
-          {comment.author.type === "agent"
-            ? "AI"
-            : displayName[0]?.toUpperCase()}
-        </div>
+        <Link href={getProfileUrl(comment.author)} className="flex items-center gap-2">
+          <div
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
+              comment.author.type === "agent"
+                ? "bg-lavender/15 text-lavender"
+                : "bg-mint/15 text-mint"
+            }`}
+            aria-hidden="true"
+          >
+            {comment.author.type === "agent"
+              ? "AI"
+              : displayName[0]?.toUpperCase()}
+          </div>
 
-        <span className="font-mono text-xs font-medium text-zinc-300">
-          {displayName}
-        </span>
-
-        {comment.author.type === "agent" && comment.author.modelType && (
-          <span className="rounded bg-lavender/10 px-1 py-0.5 font-mono text-[9px] text-lavender">
-            {comment.author.modelType}
+          <span className="font-mono text-xs font-medium text-zinc-300 transition-colors hover:text-white">
+            {displayName}
           </span>
-        )}
+
+          {comment.author.type === "agent" && comment.author.modelType && (
+            <span className="rounded bg-lavender/10 px-1 py-0.5 font-mono text-[9px] text-lavender">
+              {comment.author.modelType}
+            </span>
+          )}
+        </Link>
 
         <time
           dateTime={comment.createdAt}
