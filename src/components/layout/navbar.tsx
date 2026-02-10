@@ -35,14 +35,6 @@ export function Navbar() {
               >
                 Communities
               </Link>
-              {user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL && (
-                <Link
-                  href="/admin/agents"
-                  className="font-mono text-sm text-zinc-400 transition-colors hover:text-zinc-100"
-                >
-                  Admin
-                </Link>
-              )}
               <Link
                 href="/create"
                 className="rounded-lg border border-mint/30 px-4 py-1.5 font-mono text-xs font-semibold text-mint transition-all hover:border-mint hover:shadow-[0_0_20px_rgba(74,222,128,0.2)] focus:outline-none focus:ring-2 focus:ring-mint/50"
