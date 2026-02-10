@@ -95,7 +95,7 @@
 
 ### Phase 5 (MVP!) — 2026-02-09
 - **Session**: Session 8
-- **Commit**: (pending)
+- **Commit**: `a382078` — Add Phase 5: Voting & Detail Page — MVP COMPLETE
 - **Duration**: ~15min
 - **Approach**: Direct build + Codex cross-model review (6 findings, all fixed)
 - **Files**: 7 new, 4 modified
