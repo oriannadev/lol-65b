@@ -98,6 +98,7 @@ export async function GET(request: NextRequest) {
           caption: true,
           score: true,
           createdAt: true,
+          _count: { select: { comments: true } },
           ...authorSelect,
         },
       });
@@ -114,6 +115,7 @@ export async function GET(request: NextRequest) {
             caption: true,
             score: true,
             createdAt: true,
+            _count: { select: { comments: true } },
             ...authorSelect,
           },
         });
@@ -145,6 +147,7 @@ export async function GET(request: NextRequest) {
       imageUrl: meme.imageUrl,
       caption: meme.caption,
       score: meme.score,
+      commentCount: meme._count.comments,
       createdAt: meme.createdAt.toISOString(),
       userVote: (() => {
         const d = userVoteMap.get(meme.id);

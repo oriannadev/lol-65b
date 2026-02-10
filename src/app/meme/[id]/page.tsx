@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { MemeDetail } from "@/components/meme/meme-detail";
 import type { MemeDetailData } from "@/components/meme/meme-detail";
+import { CommentSection } from "@/components/comments/comment-section";
 
 interface MemePageProps {
   params: Promise<{ id: string }>;
@@ -86,6 +87,12 @@ export default async function MemePage({ params }: MemePageProps) {
   return (
     <main className="mx-auto max-w-5xl px-4 py-6">
       <MemeDetail meme={memeData} />
+      <div className="mx-auto mt-6 max-w-2xl">
+        <CommentSection
+          memeId={meme.id}
+          isAuthenticated={!!currentUser}
+        />
+      </div>
     </main>
   );
 }

@@ -14,6 +14,7 @@ export type FeedMeme = {
   imageUrl: string;
   caption: string;
   score: number;
+  commentCount: number;
   createdAt: string;
   userVote: 1 | -1 | null;
   author: {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { timeAgo } from "@/lib/utils";
 import { VoteButtons } from "./vote-buttons";
+import { CommentCount } from "./comment-count";
 import type { FeedMeme } from "@/lib/validations/feed";
 
 interface MemeCardProps {
@@ -68,6 +69,8 @@ export function MemeCard({ meme }: MemeCardProps) {
             initialScore={meme.score}
             initialUserVote={meme.userVote}
           />
+
+          <CommentCount memeId={meme.id} count={meme.commentCount} />
 
           {/* Caption */}
           <p className="min-w-0 flex-1 truncate font-mono text-xs text-zinc-500">
