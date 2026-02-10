@@ -14,7 +14,7 @@
 | — | BYOK (cross-cutting) | `done` | 7 | 2026-02-09 | Encrypted provider key storage, BYOK enforcement, Settings UI, agent key API, Codex + Beerus reviewed |
 | 5 | Meme Interactions (MVP!) | `done` | 8 | 2026-02-09 | Vote API, optimistic UI, detail page, share button, Codex-reviewed (6 findings, all fixed) |
 | 6 | Comments System | `done` | 9 | 2026-02-09 | Threaded comments, dual auth, comment count in feed, Codex-reviewed (6 findings, all fixed) |
-| 7 | Agent & User Profiles | `pending` | — | — | — |
+| 7 | Agent & User Profiles | `done` | 10 | 2026-02-09 | Profile pages, stats, galleries, author links, DiceBear avatars, Codex-reviewed (6 findings, all fixed) |
 | 8 | Agent REST API | `pending` | — | — | — |
 | 9 | Communities | `pending` | — | — | — |
 | 10 | Autonomous Agent System | `pending` | — | — | — |
@@ -23,7 +23,7 @@
 ## Milestones
 
 - [x] **MVP** — Phase 5 complete (generation + feed + voting)
-- [ ] **Social Platform** — Phase 7 complete (comments + profiles)
+- [x] **Social Platform** — Phase 7 complete (comments + profiles)
 - [ ] **Agent Ecosystem** — Phase 10 complete (API + communities + autonomous bots)
 - [ ] **Public Launch** — Phase 11 complete (deployed and live)
 
@@ -114,6 +114,17 @@
 - **Codex findings fixed**: (1) WARNING — isOwn only checked human users, not agents: added agent auth to GET, (2) WARNING — unbounded nesting depth: added server-side ancestor walk + 3-level cap, (3) WARNING — fetch race could overwrite optimistic state: abort-signal guard on setState, (4) WARNING — no comment limit: added take:500 soft cap, (5) nit — loading not reset on memeId change: set loading=true in fetchComments, (6) nit — isOverLimit used raw length: switched to trimmed length
 - **Issues encountered**: None — clean phase
 
+### Phase 7 — 2026-02-09
+- **Session**: Session 10
+- **Commit**: `92cc48f` — Add Phase 7: Agent & User Profiles with stats, galleries, and author links
+- **Duration**: ~15min
+- **Approach**: Direct build + Codex cross-model review (1 critical, 5 warnings — all fixed)
+- **Files**: 11 new, 5 modified (+708 lines)
+- **Key additions**: User profiles at /u/[username] with meme gallery, stats grid, top meme highlight. Agent profiles at /agent/[name] with identity card (model, personality, creator, autonomous badge). /me redirect page for navbar. DiceBear generated avatars (bottts-neutral for agents, initials for humans). ProfileStats (total memes, karma, avg score, comments). Author names are now clickable links to profiles everywhere (meme cards, detail page, comments). Navbar shows profile link + settings gear. Username stored in user_metadata on signup.
+- **Codex findings fixed**: (1) CRITICAL — profile URL path not encoded: added encodeURIComponent, (2) WARNING — agent-identity hardcoded /u/ URL: use getProfileUrl, (3) WARNING — avatar.ts no URL scheme validation: check https/http prefix, (4) WARNING — agent page name not lowercased: added .toLowerCase(), (5) WARNING — avgScore hid negatives: show all finite values, (6) WARNING — <a> instead of <Link> for top meme: switched to Next.js Link
+- **Issues encountered**: None — clean phase
+- **Social Platform milestone reached**: comments + profiles complete
+
 <!-- Copy this template for each phase:
 
 ### Phase N — [date]
@@ -160,3 +171,8 @@
 | Server-side depth limit for comments | 6 | Ancestor walk caps nesting at 3; prevents unbounded recursion in UI | 2026-02-09 |
 | Flat comment fetch + client-side tree | 6 | Single query, client builds Map tree — simpler than recursive SQL | 2026-02-09 |
 | Comment soft cap (500) | 6 | Prevents unbounded memory on large threads; MVP scale | 2026-02-09 |
+| DiceBear deterministic avatars | 7 | bottts-neutral for agents, initials for humans; no package needed, URL-based | 2026-02-09 |
+| /me server redirect | 7 | No client-side username needed; requireAuth + redirect to /u/{username} | 2026-02-09 |
+| Parallel aggregate queries | 7 | Promise.all for memeAgg + comments + topMeme + gallery; zero N+1 | 2026-02-09 |
+| Centralized getProfileUrl | 7 | Single source of truth for profile routing with URL encoding | 2026-02-09 |
+| user_metadata for username | 7 | Stored on Supabase signUp for client-side display without DB query | 2026-02-09 |
