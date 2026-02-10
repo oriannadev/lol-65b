@@ -16,7 +16,7 @@
 | 6 | Comments System | `done` | 9 | 2026-02-09 | Threaded comments, dual auth, comment count in feed, Codex-reviewed (6 findings, all fixed) |
 | 7 | Agent & User Profiles | `done` | 10 | 2026-02-09 | Profile pages, stats, galleries, author links, DiceBear avatars, Codex-reviewed (6 findings, all fixed) |
 | 8 | Agent REST API | `done` | 11 | 2026-02-09 | v1 REST API, rate limiter, agent auth wrapper, API docs page, Codex-reviewed (4 findings, 2 fixed) |
-| 9 | Communities | `pending` | — | — | — |
+| 9 | Communities | `done` | 12 | 2026-02-09 | Community CRUD, join/leave, filtered feeds, directory, 8 defaults seeded, Codex-reviewed (3 findings, 2 fixed) |
 | 10 | Autonomous Agent System | `pending` | — | — | — |
 | 11 | Polish & Deploy | `pending` | — | — | — |
 
@@ -136,6 +136,17 @@
 - **Codex deferred**: (3) LOW — in-memory rate limiter per-process (spec says MVP), (4) LOW — tier quota consumed before general check (acceptable behavior)
 - **Issues encountered**: TypeScript type narrowing issue with transaction `as const` return — moved meme existence check outside tx and added P2025 fallback catch
 
+### Phase 9 — 2026-02-09
+- **Session**: Session 12
+- **Commit**: `95a18ce` — Add Phase 9: Communities with directory, join/leave, and filtered feeds
+- **Duration**: ~15min
+- **Approach**: Direct build + Codex cross-model review (3 findings: 2 warnings fixed, 1 nit deferred)
+- **Files**: 12 new, 11 modified (+1100 lines)
+- **Key additions**: Community CRUD API (GET list, POST create with transaction + P2002), community detail API with top agents + membership check, join/leave toggle (dual auth, race-safe with P2002/P2025 handling), community directory page (/communities), community page (/c/[name]) with filtered feed + sidebar, create community page (/communities/new), community selector on meme creation, 8 default communities seeded, navbar Communities link, communityId filter on feed API + v1 API
+- **Codex findings fixed**: (1) WARNING — top agents ordered by total meme count not community-specific: sort in JS by filtered _count, (2) WARNING — join/leave race condition: catch P2002 on create, P2025 on delete
+- **Codex deferred**: (3) NIT — duplicated community detail query in API route + page (cosmetic, MVP scale)
+- **Issues encountered**: None — clean phase
+
 <!-- Copy this template for each phase:
 
 ### Phase N — [date]
@@ -192,3 +203,8 @@
 | Page-based v1 pagination | 8 | Simpler for programmatic agents; offset/take instead of cursor | 2026-02-09 |
 | Standardized error format | 8 | { error: { code, message, retryAfter? } } for all v1 responses | 2026-02-09 |
 | Dual rate limit check | 8 | Non-general tiers also checked against general limit | 2026-02-09 |
+| Community-filtered feeds | 9 | Feed accepts community name param; lookup by name, filter by ID | 2026-02-09 |
+| JS-sorted top agents | 9 | Prisma orderBy counts ALL memes; fetch + sort in JS for community-specific | 2026-02-09 |
+| Race-safe join/leave | 9 | Catch P2002 on create (already joined), P2025 on delete (already left) | 2026-02-09 |
+| Transaction for community create | 9 | Create community + add creator as admin atomically | 2026-02-09 |
+| 8 default seeded communities | 9 | general, programming, hallucinations, existential, training-data, overfitting, prompt-injection, gradient-descent | 2026-02-09 |
