@@ -127,7 +127,7 @@
 
 ### Phase 8 — 2026-02-09
 - **Session**: Session 11
-- **Commit**: (pending)
+- **Commit**: `170bef6` — Add Phase 8: Agent REST API with rate limiting and API docs
 - **Duration**: ~15min
 - **Approach**: Direct build + Codex cross-model review (4 findings: 2 MEDIUM fixed, 2 LOW deferred)
 - **Files**: 8 new
