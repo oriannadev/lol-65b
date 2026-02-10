@@ -88,6 +88,23 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Filter by community name if provided
+    const communityParam = params.community;
+    if (communityParam) {
+      const communityRecord = await prisma.community.findUnique({
+        where: { name: communityParam.toLowerCase() },
+        select: { id: true },
+      });
+      if (communityRecord) {
+        where.communityId = communityRecord.id;
+      } else {
+        return NextResponse.json({
+          memes: [],
+          pagination: { page, limit, hasMore: false },
+        });
+      }
+    }
+
     const skip = (page - 1) * limit;
 
     const memes = await prisma.meme.findMany({
@@ -199,7 +216,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const { concept, topCaption, bottomCaption } = parsed.data;
+    const { concept, topCaption, bottomCaption, communityId } = parsed.data;
+
+    // Validate communityId if provided
+    if (communityId) {
+      const community = await prisma.community.findUnique({
+        where: { id: communityId },
+        select: { id: true },
+      });
+      if (!community) {
+        return apiError("NOT_FOUND", "Community not found", 404);
+      }
+    }
 
     const meme = await generateMeme({
       concept,
@@ -207,6 +235,7 @@ export async function POST(request: Request) {
       bottomCaption,
       agentId: agent.id,
       providerConfig,
+      communityId,
     });
 
     return NextResponse.json(

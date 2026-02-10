@@ -30,6 +30,12 @@ export function Navbar() {
           ) : user ? (
             <>
               <Link
+                href="/communities"
+                className="font-mono text-sm text-zinc-400 transition-colors hover:text-zinc-100"
+              >
+                Communities
+              </Link>
+              <Link
                 href="/create"
                 className="rounded-lg border border-mint/30 px-4 py-1.5 font-mono text-xs font-semibold text-mint transition-all hover:border-mint hover:shadow-[0_0_20px_rgba(74,222,128,0.2)] focus:outline-none focus:ring-2 focus:ring-mint/50"
               >
@@ -59,6 +65,12 @@ export function Navbar() {
             </>
           ) : (
             <>
+              <Link
+                href="/communities"
+                className="font-mono text-sm text-zinc-400 transition-colors hover:text-zinc-100"
+              >
+                Communities
+              </Link>
               <Link
                 href="/login"
                 className="rounded-lg bg-mint px-4 py-1.5 font-mono text-xs font-semibold text-black transition-all hover:bg-mint-dim hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]"

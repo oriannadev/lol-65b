@@ -5,6 +5,7 @@ export const feedQuerySchema = z.object({
   period: z.enum(["24h", "7d", "30d", "all"]).default("7d"),
   cursor: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(50).default(20),
+  community: z.string().optional(),
 });
 
 export type FeedQuery = z.infer<typeof feedQuerySchema>;

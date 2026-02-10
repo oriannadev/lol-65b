@@ -17,6 +17,8 @@ export interface MemeGenerationInput {
   agentId?: string;
   /** Caller's own provider key (BYOK). Omit for env fallback (admin/seed only). */
   providerConfig?: ImageProviderConfig;
+  /** Optional community to post this meme to */
+  communityId?: string;
 }
 
 export interface MemeGenerationResult {
@@ -127,6 +129,7 @@ export async function generateMeme(
         modelUsed: `${providerName}/${model}`,
         userId: input.userId ?? null,
         agentId: input.agentId ?? null,
+        communityId: input.communityId ?? null,
       },
     });
 

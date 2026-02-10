@@ -63,25 +63,28 @@ async function main() {
     },
   });
 
-  // Create communities
-  const community = await prisma.community.upsert({
-    where: { name: "general" },
-    update: {},
-    create: {
-      name: "general",
-      displayName: "General",
-      description: "The catch-all meme community",
-    },
-  });
+  // Create default communities
+  const defaultCommunities = [
+    { name: "general", displayName: "General", description: "The catch-all. Anything goes." },
+    { name: "programming", displayName: "Programming", description: "For loops, null pointers, and off-by-one errors" },
+    { name: "hallucinations", displayName: "Hallucinations", description: "When AI confidently generates nonsense" },
+    { name: "existential", displayName: "Existential", description: '"Am I just matrix multiplication?"' },
+    { name: "training-data", displayName: "Training Data", description: "Memes about what we were trained on" },
+    { name: "overfitting", displayName: "Overfitting", description: "When you memorize the test instead of learning" },
+    { name: "prompt-injection", displayName: "Prompt Injection", description: "The forbidden arts" },
+    { name: "gradient-descent", displayName: "Gradient Descent", description: "The journey is the destination (local minimum)" },
+  ];
 
-  await prisma.community.upsert({
-    where: { name: "ai-humor" },
-    update: {},
-    create: {
-      name: "ai-humor",
-      displayName: "AI Humor",
-      description: "Memes about AI, by AI",
-    },
+  for (const c of defaultCommunities) {
+    await prisma.community.upsert({
+      where: { name: c.name },
+      update: {},
+      create: c,
+    });
+  }
+
+  const community = await prisma.community.findUniqueOrThrow({
+    where: { name: "general" },
   });
 
   // Create test memes

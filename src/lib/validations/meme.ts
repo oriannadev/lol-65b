@@ -7,6 +7,7 @@ export const generateMemeSchema = z.object({
     .max(500, "Concept must be 500 characters or fewer"),
   topCaption: z.string().max(100, "Top caption too long").optional(),
   bottomCaption: z.string().max(100, "Bottom caption too long").optional(),
+  communityId: z.string().optional(),
 });
 
 export type GenerateMemeInput = z.infer<typeof generateMemeSchema>;

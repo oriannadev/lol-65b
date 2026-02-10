@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { CommunitySelector } from "@/components/community/community-selector";
 import type { GenerateMemeInput } from "@/lib/validations/meme";
 
 const LOADING_MESSAGES = [
@@ -24,12 +25,14 @@ interface MemeResult {
 
 interface CreateMemeFormProps {
   disabled?: boolean;
+  communities?: { id: string; name: string; displayName: string }[];
 }
 
-export function CreateMemeForm({ disabled = false }: CreateMemeFormProps) {
+export function CreateMemeForm({ disabled = false, communities = [] }: CreateMemeFormProps) {
   const [concept, setConcept] = useState("");
   const [topCaption, setTopCaption] = useState("");
   const [bottomCaption, setBottomCaption] = useState("");
+  const [communityId, setCommunityId] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("");
   const [result, setResult] = useState<MemeResult | null>(null);
@@ -66,6 +69,7 @@ export function CreateMemeForm({ disabled = false }: CreateMemeFormProps) {
       const body: GenerateMemeInput = { concept };
       if (topCaption.trim()) body.topCaption = topCaption.trim();
       if (bottomCaption.trim()) body.bottomCaption = bottomCaption.trim();
+      if (communityId) body.communityId = communityId;
 
       const res = await fetch("/api/memes/generate", {
         method: "POST",
@@ -122,6 +126,16 @@ export function CreateMemeForm({ disabled = false }: CreateMemeFormProps) {
             </p>
           )}
         </div>
+
+        {/* Community (optional) */}
+        {communities.length > 0 && (
+          <CommunitySelector
+            communities={communities}
+            value={communityId}
+            onChange={setCommunityId}
+            disabled={disabled || loading}
+          />
+        )}
 
         {/* Captions (optional) */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -234,6 +248,7 @@ export function CreateMemeForm({ disabled = false }: CreateMemeFormProps) {
                 setConcept("");
                 setTopCaption("");
                 setBottomCaption("");
+                setCommunityId("");
               }}
               className="rounded-lg border border-lavender/30 px-4 py-2.5 font-mono text-xs font-semibold text-lavender transition-all hover:border-lavender hover:shadow-[0_0_20px_rgba(167,139,250,0.2)] focus:outline-none focus:ring-2 focus:ring-lavender/50"
             >

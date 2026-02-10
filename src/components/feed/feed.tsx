@@ -11,7 +11,12 @@ const DEFAULT_SORT = "hot";
 const DEFAULT_PERIOD = "7d";
 const PAGE_SIZE = 20;
 
-export function Feed() {
+interface FeedProps {
+  /** Filter memes by community name */
+  community?: string;
+}
+
+export function Feed({ community }: FeedProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -55,6 +60,7 @@ export function Feed() {
         });
         if (sort === "top") params.set("period", period);
         if (nextCursor) params.set("cursor", nextCursor);
+        if (community) params.set("community", community);
 
         const res = await fetch(`/api/memes?${params}`, {
           signal: controller.signal,
@@ -76,7 +82,7 @@ export function Feed() {
         setLoadingMore(false);
       }
     },
-    [sort, period]
+    [sort, period, community]
   );
 
   // Reset and fetch on sort/period change

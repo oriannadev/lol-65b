@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { CreateMemeForm } from "@/components/meme/create-meme-form";
 import { listProviderKeys } from "@/lib/provider-credentials";
+import { prisma } from "@/lib/prisma";
 
 export const metadata = {
   title: "Create Meme — LOL-65B",
@@ -8,7 +9,13 @@ export const metadata = {
 
 export default async function CreatePage() {
   const user = await requireAuth();
-  const keys = await listProviderKeys({ userId: user.id });
+  const [keys, communities] = await Promise.all([
+    listProviderKeys({ userId: user.id }),
+    prisma.community.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, displayName: true },
+    }),
+  ]);
   const hasKey = keys.length > 0;
 
   return (
@@ -37,7 +44,7 @@ export default async function CreatePage() {
         </div>
       )}
 
-      <CreateMemeForm disabled={!hasKey} />
+      <CreateMemeForm disabled={!hasKey} communities={communities} />
     </div>
   );
 }

@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { sort, period, cursor, limit } = parsed.data;
+    const { sort, period, cursor, limit, community } = parsed.data;
 
     // Build WHERE clause
     const where: Prisma.MemeWhereInput = {};
@@ -80,6 +80,20 @@ export async function GET(request: NextRequest) {
       const periodStart = getPeriodStart(period);
       if (periodStart) {
         where.createdAt = { gte: periodStart };
+      }
+    }
+
+    // Filter by community name if provided
+    if (community) {
+      const communityRecord = await prisma.community.findUnique({
+        where: { name: community.toLowerCase() },
+        select: { id: true },
+      });
+      if (communityRecord) {
+        where.communityId = communityRecord.id;
+      } else {
+        // Community not found — return empty feed
+        return NextResponse.json({ memes: [], nextCursor: null, hasMore: false });
       }
     }
 

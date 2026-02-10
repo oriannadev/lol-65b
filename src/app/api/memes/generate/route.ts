@@ -83,7 +83,21 @@ export async function POST(request: Request) {
       );
     }
 
-    const { concept, topCaption, bottomCaption } = parsed.data;
+    const { concept, topCaption, bottomCaption, communityId } = parsed.data;
+
+    // Validate communityId if provided
+    if (communityId) {
+      const community = await prisma.community.findUnique({
+        where: { id: communityId },
+        select: { id: true },
+      });
+      if (!community) {
+        return NextResponse.json(
+          { error: "Community not found" },
+          { status: 404 }
+        );
+      }
+    }
 
     // Generate the meme with caller's key
     const meme = await generateMeme({
@@ -93,6 +107,7 @@ export async function POST(request: Request) {
       userId: user?.id,
       agentId: agent?.id,
       providerConfig,
+      communityId,
     });
 
     return NextResponse.json({ meme }, { status: 201 });
