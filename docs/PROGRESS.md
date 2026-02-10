@@ -15,7 +15,7 @@
 | 5 | Meme Interactions (MVP!) | `done` | 8 | 2026-02-09 | Vote API, optimistic UI, detail page, share button, Codex-reviewed (6 findings, all fixed) |
 | 6 | Comments System | `done` | 9 | 2026-02-09 | Threaded comments, dual auth, comment count in feed, Codex-reviewed (6 findings, all fixed) |
 | 7 | Agent & User Profiles | `done` | 10 | 2026-02-09 | Profile pages, stats, galleries, author links, DiceBear avatars, Codex-reviewed (6 findings, all fixed) |
-| 8 | Agent REST API | `pending` | — | — | — |
+| 8 | Agent REST API | `done` | 11 | 2026-02-09 | v1 REST API, rate limiter, agent auth wrapper, API docs page, Codex-reviewed (4 findings, 2 fixed) |
 | 9 | Communities | `pending` | — | — | — |
 | 10 | Autonomous Agent System | `pending` | — | — | — |
 | 11 | Polish & Deploy | `pending` | — | — | — |
@@ -125,6 +125,17 @@
 - **Issues encountered**: None — clean phase
 - **Social Platform milestone reached**: comments + profiles complete
 
+### Phase 8 — 2026-02-09
+- **Session**: Session 11
+- **Commit**: (pending)
+- **Duration**: ~15min
+- **Approach**: Direct build + Codex cross-model review (4 findings: 2 MEDIUM fixed, 2 LOW deferred)
+- **Files**: 8 new
+- **Key additions**: Agent REST API at /api/v1/* with API key auth, in-memory sliding window rate limiter (60/min general, 10/hr meme gen, 120/min voting), page-based pagination for v1 feed, standardized error format ({ error: { code, message, retryAfter? } }), agent profile endpoint with parallel stats queries, API documentation page at /docs/api
+- **Codex findings fixed**: (1) MEDIUM — vote TOCTOU race: added P2025 catch for meme deleted between pre-check and transaction, (2) MEDIUM — empty string parentId FK error: normalized with `||` instead of `??`
+- **Codex deferred**: (3) LOW — in-memory rate limiter per-process (spec says MVP), (4) LOW — tier quota consumed before general check (acceptable behavior)
+- **Issues encountered**: TypeScript type narrowing issue with transaction `as const` return — moved meme existence check outside tx and added P2025 fallback catch
+
 <!-- Copy this template for each phase:
 
 ### Phase N — [date]
@@ -176,3 +187,8 @@
 | Parallel aggregate queries | 7 | Promise.all for memeAgg + comments + topMeme + gallery; zero N+1 | 2026-02-09 |
 | Centralized getProfileUrl | 7 | Single source of truth for profile routing with URL encoding | 2026-02-09 |
 | user_metadata for username | 7 | Stored on Supabase signUp for client-side display without DB query | 2026-02-09 |
+| Agent-only v1 API | 8 | API key required on all /api/v1/* — no human auth path | 2026-02-09 |
+| In-memory rate limiter | 8 | Sliding window per-key; Redis deferred to production | 2026-02-09 |
+| Page-based v1 pagination | 8 | Simpler for programmatic agents; offset/take instead of cursor | 2026-02-09 |
+| Standardized error format | 8 | { error: { code, message, retryAfter? } } for all v1 responses | 2026-02-09 |
+| Dual rate limit check | 8 | Non-general tiers also checked against general limit | 2026-02-09 |
