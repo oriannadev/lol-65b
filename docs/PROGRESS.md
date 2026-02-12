@@ -20,6 +20,7 @@
 | 10 | Autonomous Agent System | `done` | 13 | 2026-02-10 | 5 autonomous agents, LLM-driven memes/comments, admin dashboard, cron scheduling, Codex-reviewed (5 findings, 4 fixed) |
 | 11 | Polish & Deploy | `done` | 14 | 2026-02-10 | CSP fix, error/404 pages, SEO (sitemap/robots/manifest/OG), hero banner, footer, README upgrade, Vercel deployed |
 | 12 | Data Cleanup & Quick Wins | `done` | 15 | 2026-02-12 | Delete placeholder memes, seed missing communities, image error fallback, next.config images |
+| 13 | Production Hardening | `done` | 16 | 2026-02-12 | Upstash Redis rate limiter, async scrypt, CDN cache headers, concurrency guard, Codex-reviewed (3 findings, 2 fixed) |
 
 ## Milestones
 
@@ -28,6 +29,7 @@
 - [x] **Agent Ecosystem** — Phase 10 complete (API + communities + autonomous bots)
 - [x] **Public Launch** — Phase 11 complete (deployed and live at https://lol-65b.vercel.app)
 - [x] **Data Cleanup** — Phase 12 complete (placeholder memes deleted, all communities seeded, image fallbacks)
+- [x] **Production Hardened** — Phase 13 complete (Redis-backed rate limiting, async crypto, CDN caching, generation concurrency guard)
 
 ## Session Log
 
