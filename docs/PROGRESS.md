@@ -19,6 +19,7 @@
 | 9 | Communities | `done` | 12 | 2026-02-09 | Community CRUD, join/leave, filtered feeds, directory, 8 defaults seeded, Codex-reviewed (3 findings, 2 fixed) |
 | 10 | Autonomous Agent System | `done` | 13 | 2026-02-10 | 5 autonomous agents, LLM-driven memes/comments, admin dashboard, cron scheduling, Codex-reviewed (5 findings, 4 fixed) |
 | 11 | Polish & Deploy | `done` | 14 | 2026-02-10 | CSP fix, error/404 pages, SEO (sitemap/robots/manifest/OG), hero banner, footer, README upgrade, Vercel deployed |
+| 12 | Data Cleanup & Quick Wins | `done` | 15 | 2026-02-12 | Delete placeholder memes, seed missing communities, image error fallback, next.config images |
 
 ## Milestones
 
@@ -26,6 +27,7 @@
 - [x] **Social Platform** — Phase 7 complete (comments + profiles)
 - [x] **Agent Ecosystem** — Phase 10 complete (API + communities + autonomous bots)
 - [x] **Public Launch** — Phase 11 complete (deployed and live at https://lol-65b.vercel.app)
+- [x] **Data Cleanup** — Phase 12 complete (placeholder memes deleted, all communities seeded, image fallbacks)
 
 ## Session Log
 
@@ -170,6 +172,16 @@
 - **Verification**: Homepage 200, robots.txt valid, sitemap.xml with dynamic routes, manifest.webmanifest valid JSON, OG image 200 (image/png), communities 200, API docs 200, cron 401 (correct — needs auth), cron with auth 200.
 - **Issues encountered**: (1) Community model has no updatedAt — used createdAt instead, (2) Vercel Hobby cron limit — changed from every 4h to daily, (3) Middleware blocking sitemap/robots/public pages — expanded public route list
 - **Resolution**: All fixed inline before deploy
+
+### Phase 12 — 2026-02-12
+- **Session**: Session 15
+- **Commit**: (pending)
+- **Duration**: ~10min
+- **Approach**: Direct build — bugs already diagnosed from triple-review (Codex, exploration agent, manual inspection)
+- **Files**: 1 new component, 1 new script, 4 modified (seed.ts, meme-card.tsx, meme-detail.tsx, next.config.ts)
+- **Key actions**: (1) Deleted 2 placeholder memes from production DB (cascaded 11 votes, 2 comments), (2) Seeded 7 missing communities on production (programming, hallucinations, existential, training-data, overfitting, prompt-injection, gradient-descent), (3) Fixed seed.ts to not create placeholder memes on future re-runs, (4) Created MemeImage client component with onError fallback (shows placeholder icon on broken images), (5) Updated meme-card.tsx and meme-detail.tsx to use MemeImage, (6) Added images.remotePatterns to next.config.ts for future next/image migration
+- **Issues encountered**: None — clean phase
+- **Research agents completed**: Phase 13 (Upstash ratelimit, async scrypt, advisory locks, CDN cache) and Phase 14 (Motion library, glassmorphism, gamification, real-time patterns) research saved for their respective sessions
 
 <!-- Copy this template for each phase:
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { VoteButtons } from "./vote-buttons";
 import { MemeMetaDisplay } from "./meme-meta";
+import { MemeImage } from "./meme-image";
 import { ShareButton } from "@/components/ui/share-button";
 import { timeAgo } from "@/lib/utils";
 import { getProfileUrl } from "@/lib/profile-url";
@@ -83,7 +84,7 @@ export function MemeDetail({ meme }: MemeDetailProps) {
 
         {/* Full-size image */}
         <div className="bg-base">
-          <img
+          <MemeImage
             src={meme.imageUrl}
             alt={`Meme: ${meme.caption}`}
             className="w-full"

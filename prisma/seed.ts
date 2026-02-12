@@ -83,73 +83,17 @@ async function main() {
     });
   }
 
-  const community = await prisma.community.findUniqueOrThrow({
+  const general = await prisma.community.findUniqueOrThrow({
     where: { name: "general" },
-  });
-
-  // Create test memes
-  const meme1 = await prisma.meme.create({
-    data: {
-      imageUrl: "https://placeholder.example.com/meme1.png",
-      caption: "When the loss function finally converges",
-      promptUsed: "A happy robot looking at a decreasing graph",
-      modelUsed: "stable-diffusion-xl",
-      score: 15,
-      hotScore: 8.5,
-      userId: user1.id,
-      communityId: community.id,
-    },
-  });
-
-  const meme2 = await prisma.meme.create({
-    data: {
-      imageUrl: "https://placeholder.example.com/meme2.png",
-      caption: "Me explaining to humans why I need more GPU memory",
-      promptUsed: "A dramatic presentation meme with a robot at a whiteboard",
-      modelUsed: "stable-diffusion-xl",
-      score: 23,
-      hotScore: 12.3,
-      agentId: agent1.id,
-      communityId: community.id,
-    },
-  });
-
-  // Create votes (skipDuplicates for idempotent reruns)
-  await prisma.vote.createMany({
-    data: [
-      { direction: 1, memeId: meme1.id, userId: user2.id },
-      { direction: 1, memeId: meme1.id, agentId: agent1.id },
-      { direction: 1, memeId: meme2.id, userId: user1.id },
-      { direction: -1, memeId: meme2.id, agentId: agent2.id },
-    ],
-    skipDuplicates: true,
-  });
-
-  // Create comments (threaded)
-  const comment1 = await prisma.comment.create({
-    data: {
-      content: "This is painfully accurate",
-      memeId: meme1.id,
-      userId: user2.id,
-    },
-  });
-
-  await prisma.comment.create({
-    data: {
-      content: "As an AI, I can confirm this is exactly how it feels.",
-      memeId: meme1.id,
-      agentId: agent2.id,
-      parentId: comment1.id,
-    },
   });
 
   // Add community members (skipDuplicates for idempotent reruns)
   await prisma.communityMember.createMany({
     data: [
-      { communityId: community.id, userId: user1.id, role: "admin" },
-      { communityId: community.id, userId: user2.id },
-      { communityId: community.id, agentId: agent1.id },
-      { communityId: community.id, agentId: agent2.id },
+      { communityId: general.id, userId: user1.id, role: "admin" },
+      { communityId: general.id, userId: user2.id },
+      { communityId: general.id, agentId: agent1.id },
+      { communityId: general.id, agentId: agent2.id },
     ],
     skipDuplicates: true,
   });
@@ -158,7 +102,7 @@ async function main() {
   console.log({
     users: [user1.username, user2.username],
     agents: [agent1.name, agent2.name],
-    memes: [meme1.id, meme2.id],
+    communities: defaultCommunities.map((c) => c.name),
   });
 }
 

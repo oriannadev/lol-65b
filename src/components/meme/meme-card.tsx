@@ -3,6 +3,7 @@ import { timeAgo } from "@/lib/utils";
 import { getProfileUrl } from "@/lib/profile-url";
 import { VoteButtons } from "./vote-buttons";
 import { CommentCount } from "./comment-count";
+import { MemeImage } from "./meme-image";
 import type { FeedMeme } from "@/lib/validations/feed";
 
 interface MemeCardProps {
@@ -55,11 +56,11 @@ export function MemeCard({ meme }: MemeCardProps) {
       {/* Image — the star of the show */}
       <Link href={`/meme/${meme.id}`} className="block">
         <div className="relative aspect-square w-full overflow-hidden bg-base">
-          <img
+          <MemeImage
             src={meme.imageUrl}
             alt={`Meme: ${meme.caption}`}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-            loading="lazy"
+            fill
           />
         </div>
       </Link>
